@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # ✅ Load OpenAI API key
-        load_dotenv('../openAI.env')
+        load_dotenv('../api_keys.env')
         client = OpenAI(api_key=os.environ.get('openai_apikey'))
 
         # ✅ Fetch all movies from the database
@@ -36,3 +36,13 @@ class Command(BaseCommand):
                 self.stderr.write(f"❌ Failed to generate embedding for {movie.title}: {e}")
 
         self.stdout.write(self.style.SUCCESS("🎯 Finished generating embeddings for all movies"))
+        
+         # ✅ Verify saved embeddings
+        self.stdout.write(self.style.SUCCESS("🎯 Finished generating embeddings for all movies"))
+        self.stdout.write("🔍 Verifying saved embeddings:")
+        for movie in Movie.objects.all():
+            try:
+                embedding_vector = np.frombuffer(movie.emb, dtype=np.float32)
+                print(f"{movie.title}: {embedding_vector[:5]}")  # Muestra los primeros 5 valores
+            except Exception as e:
+                self.stderr.write(f"❌ Failed to load embedding for {movie.title}: {e}")
